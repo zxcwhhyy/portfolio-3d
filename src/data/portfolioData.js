@@ -9,7 +9,7 @@ export const portfolioData = {
     location: "Worldwide / Remote",
     email: "ilya@whhyy.dev",
     telegram: "https://t.me/whhyy_dev",
-    github: "https://github.com/whhyy",
+    github: "https://github.com/zxcwhhyy",
     linkedin: "https://linkedin.com/in/whhyy-dev",
     resumeLink: "#",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
@@ -86,7 +86,7 @@ export const portfolioData = {
       tags: ["Next.js", "TypeScript", "TailwindCSS", "Node.js", "PostgreSQL", "Socket.io"],
       gradient: "from-blue-600 via-cyan-500 to-teal-400",
       stats: "⚡ 60 FPS • 10K+ RPS • 99.9% Uptime",
-      github: "https://github.com/your-username/nexus-dashboard",
+      github: "https://github.com/zxcwhhyy/nexus-dashboard",
       live: "/demos/nexus/index.html",
       featured: true
     },
@@ -98,7 +98,7 @@ export const portfolioData = {
       tags: ["Three.js", "WebGL", "React", "GSAP", "TailwindCSS"],
       gradient: "from-purple-600 via-pink-500 to-rose-400",
       stats: "🎨 3D Realtime • PBR Materials • 60 FPS",
-      github: "https://github.com/your-username/spatial-3d-shop",
+      github: "https://github.com/zxcwhhyy/spatial-3d-audio",
       live: "/demos/spatial/index.html",
       featured: true
     },
@@ -110,7 +110,7 @@ export const portfolioData = {
       tags: ["React", "NestJS", "PostgreSQL", "Redis", "Docker", "Chart.js"],
       gradient: "from-emerald-600 via-teal-500 to-cyan-400",
       stats: "🔒 End-to-End Auth • Instant Sync",
-      github: "https://github.com/your-username/finflow-app",
+      github: "https://github.com/zxcwhhyy/finflow-wealth-os",
       live: "/demos/finflow/index.html",
       featured: true
     },
@@ -122,7 +122,7 @@ export const portfolioData = {
       tags: ["TypeScript", "OpenAI API", "FastAPI", "React", "Monaco Editor"],
       gradient: "from-amber-500 via-orange-600 to-red-500",
       stats: "🤖 5+ LLM Models • AST Parsing",
-      github: "https://github.com/your-username/synapse-ai",
+      github: "https://github.com/zxcwhhyy/synapse-ai-studio",
       live: "/demos/synapse/index.html",
       featured: true
     }
@@ -154,6 +154,6 @@ export const portfolioData = {
     bio: "Ilya (whhyy.dev) — Fullstack Web Developer.\nSpecialization: React/Next.js, Node.js, TypeScript, Three.js 3D WebGL.\nFocused on high performance, elegant UI, and scalable architecture.",
     skills: "Frontend: React, Next.js, TypeScript, TailwindCSS\nBackend: Node.js, NestJS, PostgreSQL, Redis, Docker\n3D & Creative: Three.js, WebGL, GLSL, GSAP",
     projects: "1. Nexus Dashboard - Real-time AI analytics & telemetry\n2. Spatial 3D Shop - Real-time 3D product configurator\n3. FinFlow - Secure fintech wealth management platform\n4. Synapse AI - Intelligent developer workspace & AST tools",
-    contact: "Email: ilya@whhyy.dev\nTelegram: @whhyy_dev\nGitHub: github.com/whhyy\nPortfolio: whhyy.dev"
+    contact: "Email: ilya@whhyy.dev\nTelegram: @whhyy_dev\nGitHub: github.com/zxcwhhyy\nPortfolio: whhyy.dev"
   }
 };
