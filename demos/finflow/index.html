@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinFlow // Smart Wealth & Asset Tracker</title>
+    <meta name="description" content="Enterprise fintech application for real-time multi-currency wealth monitoring, asset allocation analytics, and encrypted session transactions." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      /* Full-Width Stretched Dashboard Layout */
+      body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+      .finflow-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+      }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        width: 100%;
+      }
+      @media (min-width: 640px) {
+        .metrics-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (min-width: 1100px) {
+        .metrics-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      .main-content-grid {
+        display: grid;
+        grid-template-columns: 100%;
+        gap: 1.5rem;
+        align-items: start;
+        width: 100%;
+      }
+      @media (min-width: 1024px) {
+        .main-content-grid {
+          grid-template-columns: minmax(0, 1fr) 380px;
+        }
+      }
+      @media (min-width: 1440px) {
+        .main-content-grid {
+          grid-template-columns: minmax(0, 1fr) 420px;
+        }
+      }
+      @media (min-width: 1800px) {
+        .main-content-grid {
+          grid-template-columns: minmax(0, 1fr) 460px;
+        }
+      }
+      .main-col-left {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        min-width: 0;
+        width: 100%;
+      }
+      .main-col-right {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        min-width: 0;
+        width: 100%;
+      }
+
+      /* Micro-Animations & Glow Effects */
+      @keyframes flashUp {
+        0% { background-color: rgba(16, 185, 129, 0.3); color: #34d399; }
+        100% { background-color: transparent; }
+      }
+      @keyframes flashDown {
+        0% { background-color: rgba(239, 68, 68, 0.3); color: #f87171; }
+        100% { background-color: transparent; }
+      }
+      .flash-green {
+        animation: flashUp 0.8s ease-out;
+      }
+      .flash-red {
+        animation: flashDown 0.8s ease-out;
+      }
+
+      @keyframes beaconPulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      }
+      .beacon-ring {
+        animation: beaconPulse 2s infinite;
+      }
+
+      /* Interactive Transaction Drawer */
+      .tx-drawer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, padding 0.3s ease;
+        opacity: 0;
+      }
+      .tx-drawer.open {
+        max-height: 220px;
+        opacity: 1;
+      }
+
+      /* Card Hover Shimmer & 3D Depth */
+      .finflow-card {
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+      .finflow-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(245, 158, 11, 0.4);
+        box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.08);
+      }
+
+      /* Toast Notification */
+      #toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+      }
+      .toast-msg {
+        padding: 10px 18px;
+        border-radius: 14px;
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        background: rgba(26, 18, 12, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        color: #f7f1eb;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(245, 158, 11, 0.15);
+        pointer-events: auto;
+        animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes toastSlideIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.92); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+    </style>
+  </head>
+  <body class="bg-[#0a0705] text-[#f7f1eb] min-h-screen font-sans antialiased overflow-x-hidden selection:bg-amber-500/30 selection:text-amber-200 relative">
+
+    <!-- Ambient Floating Particle & Light Field -->
+    <canvas id="finflow-ambient-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 h-16 glass-nav border-b border-amber-900/40 px-4 sm:px-8 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 sm:gap-5 min-w-0">
+        <!-- Back to Portfolio -->
+        <a href="/#projects" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1a120c] hover:bg-[#2b1c12] border border-amber-900/50 text-xs font-mono text-amber-300 hover:text-white transition-all flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="hidden sm:inline">Portfolio</span>
+        </a>
+
+        <!-- Brand Identity -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-800 flex items-center justify-center font-bold text-stone-950 font-mono shadow-md shadow-amber-600/30 flex-shrink-0 text-sm">
+            💎
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm sm:text-base tracking-tight font-mono text-stone-100 truncate">FinFlow</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 text-amber-400 font-mono hidden md:inline">WEALTH OS v2.4</span>
+            </div>
+            <p class="text-[11px] text-stone-400 font-mono truncate hidden sm:block">Real-Time Multi-Currency Asset Tracker</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Actions -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0 font-mono text-xs">
+        <!-- End-to-End Cryptographic Session Token Indicator -->
+        <div id="btn-security-badge" class="cursor-pointer px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#16100c] border border-emerald-500/30 hover:border-emerald-400/50 text-emerald-300 transition-all flex items-center gap-2 group">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="hidden xl:inline text-[11px]">AES-256 E2E AUTH</span>
+          <span id="session-countdown" class="text-[11px] text-stone-400 group-hover:text-emerald-300 transition-colors">14:59</span>
+        </div>
+
+        <!-- Global Currency Switcher -->
+        <div class="flex items-center rounded-xl bg-[#16100c] border border-amber-900/40 p-0.5">
+          <button data-currency="USD" class="currency-toggle-btn px-2 sm:px-2.5 py-1 rounded-lg bg-amber-500 text-stone-950 font-bold text-xs transition-all">USD</button>
+          <button data-currency="EUR" class="currency-toggle-btn px-2 sm:px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 text-xs transition-all">EUR</button>
+          <button data-currency="GBP" class="currency-toggle-btn px-2 sm:px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 text-xs transition-all">GBP</button>
+        </div>
+
+        <!-- Quick Transfer Action -->
+        <button id="btn-open-transfer" class="px-3 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-extrabold text-xs shadow-md shadow-amber-600/20 transition-all flex items-center gap-1.5 transform active:scale-95">
+          <span>Transfer</span>
+          <span class="hidden sm:inline">↗</span>
+        </button>
+
+        <!-- Security Shield Button -->
+        <button id="btn-open-shield" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-[#1a120c] hover:bg-[#2b1c12] border border-amber-900/50 text-stone-300 hover:text-amber-300 transition-colors" title="Security & Key Rotation">
+          <span>🛡️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Full-Width Content Container -->
+    <main class="finflow-container w-full px-4 sm:px-8 lg:px-10 py-6 space-y-6 relative z-10">
+
+      <!-- 1. Top High-Level Wealth Metric Cards -->
+      <section class="metrics-grid">
+        
+        <!-- Total Net Worth Card -->
+        <div class="glass-panel finflow-card p-5 rounded-2xl border border-amber-900/40 relative overflow-hidden group cursor-pointer" id="hero-card-total">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-stone-400 uppercase tracking-wider">Total Net Worth</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono text-[11px] flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              +18.4% YTD
+            </span>
+          </div>
+          <div class="mt-3 flex items-end justify-between gap-2">
+            <div class="min-w-0">
+              <span id="metric-total-wealth" class="text-2xl sm:text-3xl font-extrabold font-mono text-stone-100 tracking-tight block">$248,650.80</span>
+              <div class="mt-1 text-[11px] text-stone-400 font-mono flex items-center gap-1">
+                <span class="text-emerald-400">+$38,620.00</span>
+                <span>unrealized gain</span>
+              </div>
+            </div>
+            <canvas id="sparkline-total" class="w-[90px] h-[34px] flex-shrink-0" width="90" height="34"></canvas>
+          </div>
+          <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/15 transition-all"></div>
+        </div>
+
+        <!-- Liquid Cash & Yield Card -->
+        <div class="glass-panel finflow-card p-5 rounded-2xl border border-amber-900/40 relative overflow-hidden group cursor-pointer" id="hero-card-cash">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-stone-400 uppercase tracking-wider">Cash & High Yield</span>
+            <span class="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[11px]">
+              5.15% APY
+            </span>
+          </div>
+          <div class="mt-3 flex items-end justify-between gap-2">
+            <div class="min-w-0">
+              <span id="metric-cash-wealth" class="text-2xl sm:text-3xl font-extrabold font-mono text-stone-100 tracking-tight block">$52,340.00</span>
+              <div class="mt-1 text-[11px] text-stone-400 font-mono flex items-center gap-1">
+                <span class="text-amber-400">+$224.15</span>
+                <span>earned this month</span>
+              </div>
+            </div>
+            <canvas id="sparkline-cash" class="w-[90px] h-[34px] flex-shrink-0" width="90" height="34"></canvas>
+          </div>
+          <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/15 transition-all"></div>
+        </div>
+
+        <!-- Crypto & Digital Assets Card -->
+        <div class="glass-panel finflow-card p-5 rounded-2xl border border-amber-900/40 relative overflow-hidden group cursor-pointer" id="hero-card-crypto">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-stone-400 uppercase tracking-wider">Digital Assets</span>
+            <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-mono text-[11px]">
+              BTC • ETH • SOL
+            </span>
+          </div>
+          <div class="mt-3 flex items-end justify-between gap-2">
+            <div class="min-w-0">
+              <span id="metric-crypto-wealth" class="text-2xl sm:text-3xl font-extrabold font-mono text-stone-100 tracking-tight block">$84,190.50</span>
+              <div class="mt-1 text-[11px] text-stone-400 font-mono flex items-center gap-1">
+                <span class="text-cyan-400">1.42 BTC</span>
+                <span>• 12.8 ETH</span>
+              </div>
+            </div>
+            <canvas id="sparkline-crypto" class="w-[90px] h-[34px] flex-shrink-0" width="90" height="34"></canvas>
+          </div>
+          <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-cyan-500/15 transition-all"></div>
+        </div>
+
+        <!-- Equities & Global REITs Card -->
+        <div class="glass-panel finflow-card p-5 rounded-2xl border border-amber-900/40 relative overflow-hidden group cursor-pointer" id="hero-card-equities">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-stone-400 uppercase tracking-wider">Equities & Funds</span>
+            <span class="px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 font-mono text-[11px]">
+              S&P 500 • REITs
+            </span>
+          </div>
+          <div class="mt-3 flex items-end justify-between gap-2">
+            <div class="min-w-0">
+              <span id="metric-equities-wealth" class="text-2xl sm:text-3xl font-extrabold font-mono text-stone-100 tracking-tight block">$112,120.30</span>
+              <div class="mt-1 text-[11px] text-stone-400 font-mono flex items-center gap-1">
+                <span class="text-purple-400">45.1%</span>
+                <span>of total allocation</span>
+              </div>
+            </div>
+            <canvas id="sparkline-equities" class="w-[90px] h-[34px] flex-shrink-0" width="90" height="34"></canvas>
+          </div>
+          <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-purple-500/15 transition-all"></div>
+        </div>
+
+      </section>
+
+      <!-- 2. Main Analytics Workspace (Full-Width Responsive 2-Column Grid) -->
+      <section class="main-content-grid">
+
+        <!-- Left Column: Performance Chart & Transaction Ledger -->
+        <div class="main-col-left">
+          
+          <!-- Performance Canvas Chart Widget -->
+          <div class="glass-panel finflow-card p-5 sm:p-6 rounded-3xl border border-amber-900/40 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 class="text-base sm:text-lg font-bold text-stone-100 flex items-center gap-2">
+                  <span>Portfolio Growth Analytics</span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </h2>
+                <p class="text-xs text-stone-400 font-mono mt-0.5">Real-time NAV valuation curve with benchmark indexing</p>
+              </div>
+
+              <!-- Controls Toolbar -->
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- Benchmark Overlay Toggles -->
+                <div class="flex items-center rounded-xl bg-[#140e0a] border border-amber-900/40 p-1 font-mono text-[11px] gap-1">
+                  <span class="text-stone-500 px-1 hidden md:inline">INDEX:</span>
+                  <button id="btn-benchmark-sp500" class="px-2 py-0.5 rounded-lg text-stone-400 hover:text-purple-300 transition-all">S&P 500</button>
+                  <button id="btn-benchmark-btc" class="px-2 py-0.5 rounded-lg text-stone-400 hover:text-cyan-300 transition-all">BTC</button>
+                </div>
+
+                <!-- Timeframe Pills -->
+                <div class="flex items-center rounded-xl bg-[#140e0a] border border-amber-900/40 p-1 font-mono text-xs">
+                  <button data-range="1D" class="timeframe-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">1D</button>
+                  <button data-range="1W" class="timeframe-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">1W</button>
+                  <button data-range="1M" class="timeframe-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">1M</button>
+                  <button data-range="1Y" class="timeframe-btn px-2.5 py-1 rounded-lg bg-amber-500 text-stone-950 font-bold transition-all">1Y</button>
+                  <button data-range="ALL" class="timeframe-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">ALL</button>
+                </div>
+
+                <!-- Live Stream Pulse Toggle -->
+                <button id="btn-live-pulse" class="px-2.5 py-1 rounded-xl bg-[#1a120c] hover:bg-[#2b1c12] border border-amber-900/40 text-stone-300 hover:text-amber-300 text-xs font-mono transition-colors flex items-center gap-1.5" title="Toggle Real-Time NAV Micro-Ticks">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span class="hidden sm:inline text-[11px]">Live Pulse</span>
+                </button>
+
+                <!-- Export Snapshot Button -->
+                <button id="btn-chart-snapshot" class="px-2.5 py-1 rounded-xl bg-[#1a120c] hover:bg-[#2b1c12] border border-amber-900/40 text-stone-300 hover:text-amber-300 text-xs font-mono transition-colors flex items-center gap-1.5" title="Export High-Res Snapshot">
+                  <span>📸</span>
+                  <span class="hidden sm:inline text-[11px]">Snapshot</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Chart Canvas Container -->
+            <div class="relative w-full h-[280px] sm:h-[320px] rounded-2xl bg-[#0e0a07]/80 border border-amber-900/30 overflow-hidden">
+              <canvas id="performance-chart-canvas" class="w-full h-full block"></canvas>
+              
+              <!-- Crosshair Inspection Tooltip -->
+              <div id="chart-tooltip" class="absolute pointer-events-none hidden px-3.5 py-2.5 rounded-xl bg-[#1a120c]/95 backdrop-blur-md border border-amber-500/50 shadow-2xl text-xs font-mono z-10 transition-transform duration-75">
+                <div id="tooltip-date" class="text-[10px] text-stone-400 font-mono"></div>
+                <div id="tooltip-val" class="font-extrabold text-amber-300 text-base"></div>
+                <div id="tooltip-gain" class="text-[11px] text-emerald-400 flex items-center gap-1"></div>
+              </div>
+            </div>
+
+            <!-- Performance Sub-Metrics Footer -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 font-mono text-xs border-t border-amber-900/30">
+              <div>
+                <span class="text-stone-500 text-[10px] block">SHARPE RATIO</span>
+                <span class="font-bold text-stone-200">2.41 (High)</span>
+              </div>
+              <div>
+                <span class="text-stone-500 text-[10px] block">MAX DRAWDOWN</span>
+                <span class="font-bold text-emerald-400">-4.2% (Low)</span>
+              </div>
+              <div>
+                <span class="text-stone-500 text-[10px] block">ANNUALIZED RETURN</span>
+                <span class="font-bold text-amber-400">+24.8% p.a.</span>
+              </div>
+              <div>
+                <span class="text-stone-500 text-[10px] block">BETA VS S&P 500</span>
+                <span class="font-bold text-stone-200">0.82</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-Currency Transactions & Transfer Ledger Widget -->
+          <div class="glass-panel finflow-card p-5 sm:p-6 rounded-3xl border border-amber-900/40 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-stone-100 flex items-center gap-2">
+                  <span>Transactions & Settlement Ledger</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono" id="tx-count-badge">8 items</span>
+                </h3>
+                <p class="text-xs text-stone-400 font-mono mt-0.5">End-to-end encrypted multi-currency journal • Click any transaction to view cryptographic proof</p>
+              </div>
+
+              <!-- Filter Pills & Quick Deposit -->
+              <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                <div class="flex items-center rounded-xl bg-[#140e0a] border border-amber-900/40 p-0.5">
+                  <button data-filter="all" class="tx-filter-btn px-2.5 py-1 rounded-lg bg-amber-500 text-stone-950 font-bold transition-all">All</button>
+                  <button data-filter="transfer" class="tx-filter-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">Transfers</button>
+                  <button data-filter="crypto" class="tx-filter-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">Crypto</button>
+                  <button data-filter="dividend" class="tx-filter-btn px-2.5 py-1 rounded-lg text-stone-400 hover:text-stone-200 transition-all">Dividends</button>
+                </div>
+
+                <!-- Instant Inbound Simulation -->
+                <button id="btn-quick-deposit" class="px-2.5 py-1 rounded-xl bg-[#1a120c] hover:bg-[#2b1c12] border border-emerald-500/40 text-emerald-300 font-bold transition-all flex items-center gap-1">
+                  <span>+ Inbound $5K</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Transaction Search Input -->
+            <div class="relative w-full">
+              <input type="text" id="tx-search-input" placeholder="Search transactions by recipient, hash, or asset..." class="w-full px-4 py-2.5 rounded-xl bg-[#120c08] border border-amber-900/40 text-stone-200 text-xs font-mono placeholder:text-stone-600 focus:outline-none focus:border-amber-500/60 transition-colors" />
+              <div class="absolute right-3.5 top-2.5 text-stone-500 text-xs">🔍</div>
+            </div>
+
+            <!-- Transaction Table / List -->
+            <div class="w-full overflow-x-auto">
+              <div class="w-full divide-y divide-amber-900/30" id="tx-ledger-container">
+                <!-- Transaction items will be dynamically injected here -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Allocation Donut, Watchlist & Security -->
+        <div class="main-col-right">
+
+          <!-- Asset Allocation Interactive Donut Chart -->
+          <div class="glass-panel p-5 sm:p-6 rounded-3xl border border-amber-900/40 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-stone-100 font-mono flex items-center gap-2">
+                <span>Asset Allocation</span>
+              </h3>
+              <span class="text-[11px] font-mono text-stone-400">100% Diversified</span>
+            </div>
+
+            <!-- Donut Canvas Container -->
+            <div class="relative w-full h-[220px] flex items-center justify-center">
+              <canvas id="allocation-donut-canvas" class="w-[200px] h-[200px] block cursor-pointer"></canvas>
+              
+              <!-- Center Summary Text -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none font-mono">
+                <span class="text-[11px] text-stone-400">PORTFOLIO</span>
+                <span id="donut-center-total" class="font-extrabold text-stone-100 text-sm">$248.6K</span>
+              </div>
+            </div>
+
+            <!-- Allocation Legend List -->
+            <div class="space-y-2.5 font-mono text-xs pt-1">
+              <div class="flex items-center justify-between p-2 rounded-xl bg-[#140e0a] border border-amber-900/30 hover:border-purple-500/40 transition-colors">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-3 h-3 rounded-md bg-purple-500"></span>
+                  <span class="text-stone-300">Equities & Funds</span>
+                </div>
+                <div class="text-right">
+                  <span class="font-bold text-stone-100" id="alloc-val-equities">$112,120</span>
+                  <span class="text-[11px] text-stone-400 ml-1">45.1%</span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded-xl bg-[#140e0a] border border-amber-900/30 hover:border-cyan-500/40 transition-colors">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-3 h-3 rounded-md bg-cyan-500"></span>
+                  <span class="text-stone-300">Crypto & Web3</span>
+                </div>
+                <div class="text-right">
+                  <span class="font-bold text-stone-100" id="alloc-val-crypto">$84,190</span>
+                  <span class="text-[11px] text-stone-400 ml-1">33.9%</span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded-xl bg-[#140e0a] border border-amber-900/30 hover:border-amber-500/40 transition-colors">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-3 h-3 rounded-md bg-amber-500"></span>
+                  <span class="text-stone-300">Cash & High-Yield</span>
+                </div>
+                <div class="text-right">
+                  <span class="font-bold text-stone-100" id="alloc-val-cash">$52,340</span>
+                  <span class="text-[11px] text-stone-400 ml-1">21.0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Market Watchlist & Exchange Rates -->
+          <div class="glass-panel p-5 sm:p-6 rounded-3xl border border-amber-900/40 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-stone-100 font-mono flex items-center gap-2">
+                <span>Market Rates</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              </h3>
+              <span class="text-[10px] font-mono text-stone-400">Live 2.5s Ticks</span>
+            </div>
+
+            <!-- Ticker Rows -->
+            <div class="space-y-2 font-mono text-xs" id="market-watchlist-container">
+              <!-- Dynamically updated market rows -->
+            </div>
+          </div>
+
+          <!-- Security & Session Shield Widget -->
+          <div class="glass-panel finflow-card p-5 sm:p-6 rounded-3xl border border-amber-900/40 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-stone-100 font-mono flex items-center gap-2">
+                <span>Security Engine</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ENCRYPTED</span>
+              </h3>
+              <span>🔒</span>
+            </div>
+
+            <div class="space-y-2 text-xs font-mono text-stone-400">
+              <div class="flex justify-between border-b border-amber-900/20 pb-1.5">
+                <span>Cipher Suite:</span>
+                <span class="text-stone-200 font-bold">AES-GCM-256</span>
+              </div>
+              <div class="flex justify-between border-b border-amber-900/20 pb-1.5">
+                <span>Key Exchange:</span>
+                <span class="text-stone-200 font-bold">ECDH P-384</span>
+              </div>
+              <div class="flex justify-between border-b border-amber-900/20 pb-1.5">
+                <span>Active Device:</span>
+                <span class="text-stone-200 font-bold">macOS • Node #12</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Audit Status:</span>
+                <span class="text-emerald-400 font-bold">Verified Zero-Trust</span>
+              </div>
+            </div>
+
+            <button id="btn-rotate-keys" class="w-full py-2.5 rounded-xl bg-[#1d140f] hover:bg-[#2e2017] border border-amber-900/50 hover:border-amber-500/50 text-amber-300 text-xs font-mono transition-all flex items-center justify-center gap-2 group">
+              <span class="group-hover:rotate-180 transition-transform duration-500">↻</span>
+              <span>Rotate Cryptographic Keys</span>
+            </button>
+
+            <!-- Interactive Key Rotation Terminal -->
+            <div id="key-rotation-box" class="hidden p-3.5 rounded-2xl bg-[#0c0806] border border-amber-500/40 space-y-2 font-mono text-[11px] shadow-lg">
+              <div class="flex items-center justify-between text-amber-400 font-bold">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                  <span id="rotation-status-title">RE-KEYING ENCLAVE...</span>
+                </span>
+                <span id="rotation-pct" class="text-emerald-400">0%</span>
+              </div>
+              <div class="w-full h-1.5 bg-stone-950 rounded-full overflow-hidden border border-amber-900/40">
+                <div id="rotation-progress-bar" class="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 w-0 transition-all duration-300"></div>
+              </div>
+              <div id="rotation-log" class="text-[10px] text-stone-400 font-mono space-y-1 bg-[#120b08] p-2 rounded-xl border border-amber-900/20 max-h-20 overflow-y-auto">
+                <p class="text-stone-300">> Initializing CSPRNG entropy pool...</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- 3. Modal: Quick Transfer & Send Funds -->
+    <div id="modal-transfer" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+      <div class="glass-panel max-w-md w-full rounded-3xl p-6 border border-amber-900/60 shadow-2xl space-y-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-amber-500 text-stone-950 font-bold flex items-center justify-center text-sm">
+              ↗
+            </div>
+            <div>
+              <h3 class="font-bold text-stone-100 text-base">New Transfer</h3>
+              <p class="text-[11px] font-mono text-stone-400">Instant multi-currency asset transmission</p>
+            </div>
+          </div>
+          <button id="btn-close-transfer" class="p-1 rounded-full text-stone-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form id="transfer-form" class="space-y-3.5 font-mono text-xs">
+          <!-- Select Source Asset -->
+          <div>
+            <label class="block text-stone-400 mb-1">Source Wallet / Asset</label>
+            <select id="transfer-source" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140e0a] border border-amber-900/40 text-stone-200 focus:outline-none focus:border-amber-500">
+              <option value="cash">USD High-Yield Cash ($52,340.00)</option>
+              <option value="btc">Bitcoin Vault (1.42 BTC)</option>
+              <option value="eth">Ethereum Staking (12.8 ETH)</option>
+              <option value="eur">Euro Global Account (€48,220.00)</option>
+            </select>
+          </div>
+
+          <!-- Recipient -->
+          <div>
+            <label class="block text-stone-400 mb-1">Recipient (IBAN, Address or $Tag)</label>
+            <input type="text" id="transfer-recipient" required placeholder="e.g. $whhyy.dev or 0x71C...84B" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140e0a] border border-amber-900/40 text-stone-200 placeholder:text-stone-600 focus:outline-none focus:border-amber-500" />
+          </div>
+
+          <!-- Amount with quick presets & FX preview -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-stone-400">Amount</label>
+              <div class="flex items-center gap-1">
+                <button type="button" data-preset="100" class="preset-btn px-2 py-0.5 rounded-lg bg-[#1a120c] text-amber-300 border border-amber-900/40 hover:bg-amber-500/20 text-[10px] transition-colors">+$100</button>
+                <button type="button" data-preset="500" class="preset-btn px-2 py-0.5 rounded-lg bg-[#1a120c] text-amber-300 border border-amber-900/40 hover:bg-amber-500/20 text-[10px] transition-colors">+$500</button>
+                <button type="button" data-preset="2500" class="preset-btn px-2 py-0.5 rounded-lg bg-[#1a120c] text-amber-300 border border-amber-900/40 hover:bg-amber-500/20 text-[10px] transition-colors">+$2.5K</button>
+                <button type="button" data-preset="max" class="preset-btn px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 hover:bg-amber-500/30 text-[10px] transition-colors">MAX</button>
+              </div>
+            </div>
+            <div class="relative">
+              <input type="number" id="transfer-amount" required step="any" min="1" placeholder="500.00" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140e0a] border border-amber-900/40 text-stone-200 font-bold placeholder:text-stone-600 focus:outline-none focus:border-amber-500" />
+              <span class="absolute right-3.5 top-2.5 text-stone-500 font-bold" id="transfer-currency-label">USD</span>
+            </div>
+            <div id="transfer-fx-preview" class="text-[10px] text-stone-400 mt-1.5 flex justify-between font-mono">
+              <span>Live FX Estimate:</span>
+              <span class="text-amber-400 font-bold" id="transfer-converted-val">≈ €460.00 / 0.0078 BTC</span>
+            </div>
+          </div>
+
+          <!-- Memo / Note -->
+          <div>
+            <label class="block text-stone-400 mb-1">Memo / Purpose (Optional)</label>
+            <input type="text" id="transfer-memo" placeholder="Asset rebalancing / invoice settlement" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140e0a] border border-amber-900/40 text-stone-200 placeholder:text-stone-600 focus:outline-none focus:border-amber-500" />
+          </div>
+
+          <!-- Fee summary -->
+          <div class="p-3 rounded-xl bg-[#16100c] border border-amber-900/30 flex justify-between items-center text-[11px]">
+            <span class="text-stone-400">Network Fee:</span>
+            <span class="text-emerald-400 font-bold">$0.00 (Zero-Fee Internal)</span>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2 flex gap-3">
+            <button type="button" id="btn-cancel-transfer" class="flex-1 py-2.5 rounded-xl bg-[#1d140f] hover:bg-[#2b1c12] text-stone-400 font-bold transition-colors">
+              Cancel
+            </button>
+            <button type="submit" id="btn-submit-transfer" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-extrabold shadow-lg shadow-amber-600/30 transition-all">
+              Authorize & Send
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. Modal: Security & Cryptographic Shield Details -->
+    <div id="modal-shield" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+      <div class="glass-panel max-w-lg w-full rounded-3xl p-6 border border-amber-900/60 shadow-2xl space-y-4 font-mono text-xs">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🛡️</span>
+            <h3 class="font-bold text-stone-100 text-base">FinFlow Cryptographic Shield</h3>
+          </div>
+          <button id="btn-close-shield" class="p-1 rounded-full text-stone-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <p class="text-stone-400 text-xs leading-relaxed">
+          FinFlow uses military-grade end-to-end encryption with ephemeral session keys. No unencrypted financial telemetry ever touches the wire.
+        </p>
+
+        <div class="space-y-2 p-3.5 rounded-2xl bg-[#120b08] border border-amber-900/40 text-[11px]">
+          <div class="flex justify-between"><span class="text-stone-500">Session ID:</span><span class="text-stone-300 font-bold">0x8F9B2C4E710D</span></div>
+          <div class="flex justify-between"><span class="text-stone-500">Handshake Hash:</span><span class="text-stone-300 font-bold">SHA3-512 (Valid)</span></div>
+          <div class="flex justify-between"><span class="text-stone-500">HMAC Authentication:</span><span class="text-emerald-400 font-bold">Verified Zero-Leakage</span></div>
+          <div class="flex justify-between"><span class="text-stone-500">Token Expiry:</span><span class="text-amber-400 font-bold" id="shield-expiry-readout">892 seconds</span></div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button id="btn-done-shield" class="px-5 py-2 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs hover:bg-amber-400 transition-colors">
+            Close Shield
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Feedback System -->
+    <div id="toast-container"></div>
+
+    <!-- Script Entrypoint -->
+    <script type="module" src="./finflow.js"></script>
+  </body>
+</html>
